@@ -1,70 +1,54 @@
-class User:
-    def __init__(self):
-        self.users = []
-    def appendUser(self, info):
-        self.users.append(info)
-    def findByname(self, name):
-        result = []
-        for user in self.users:
-            if user.name == name:
-                result.append(name)
-        return result
+from abc import ABC, abstractmethod
 
 
-class UserValidation:
-    def validate(self, email, age):
-        if not email or '@' not in email:
-            print("Invalid email!")
-            return False
+class PaymentMethod(ABC):
+    def __init__(self, amount:int):
+        self.amount = amount
 
-        if age < 18:
-            print("User must be 18 or older!")
-            return False
-
-class UserORM:
-
-    def create(self, info):
-        #Stimulate add new user record
-        return true
-
-    def update(self, info):
-        # Stimulate updating user record
-        return true
-
-    def read(self, info):
-        # Stimulate reading a record
-        return true
-
-class EmailService:
-    def send(self, email, name):
-        # Stimulate sending an email
-        return true
+    @abstractmethod
+    def process(self, amount:int) ->None:
+        pass
 
 
-class UserService:
-    def add_user(self, name, email, age):
-        # Responsibility 1: User validation
-        if(not UserValidation().validate( "ali@example.com", 25)):
-            return False
+class Credit(PaymentMethod):
+    def process(self) ->None:
+        print(f"you have paid {self.amount} dollars with credit method")
 
-        # Responsibility 2: Creating user object
-        user = {
-            'name': name,
-            'email': email,
-            'age': age
-        }
-        newUser = User().appendUser(user)
 
-        # Responsibility 3: Database operations
-        UserORM().create(newUser)
+class Crypto(PaymentMethod):
+    def process(self) ->None:
+        print(f"you have paid {self.amount} dollars with crypto method")
 
-        # Responsibility 4: Sending email notifications
-        UserService().send(email, name)
+class Paypal(PaymentMethod):
+    def process(self) ->None:
+        print(f"you have paid {self.amount} dollars with paypal method")
 
-        return True
 
-# Usage example
-if __name__ == "__main__":
-    manager = UserService()
-    manager.add_user("Ali Rezaei", "ali@example.com", 25)
-    manager.add_user("Sara Mohammadi", "sara@example.com", 30)
+
+# print(Credit(50).process())
+# print(Crypto(50).process())
+# print(Paypal(50).process())
+
+
+class Payment:
+    @staticmethod
+    def processPayment(method: PaymentMethod) ->None:
+        method.process()
+
+
+def clientCode(method, amount: int) -> str:
+    MethodToClass = {
+        'crypto': Crypto,
+        'paypal': Paypal,
+        'credit': Credit,
+    }
+    paymentClass = MethodToClass[method]
+    objectPaymentClass = paymentClass(amount)
+    return Payment.processPayment(objectPaymentClass)
+
+
+
+
+print(clientCode('crypto', 10))
+print(clientCode('paypal', 20))
+print(clientCode('credit', 50))
